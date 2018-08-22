@@ -8,22 +8,21 @@
 #define MEMORY_SIZE 4096
 #define LOGAR (long long int)
 
-
 uint8_t memory[MEMORY_SIZE];
 
 typedef struct chunck{
 	unsigned int size;
-	struct chunck * next;
-	struct chunck * before;
+	struct chunck* next;
+	struct chunck* before;
 }bloco;
 
-void *aloca(unsigned int);
+void* aloca(unsigned int);
 void dealoca(void*);
 bloco* createlist(int);
 bloco* insertlastdata(bloco*, int);
 void insertdata(bloco*, int);
 void imprimetudo(bloco*);
-void expulsar(bloco*, int );
+void expulsar(bloco*, int);
 
 int main(void){
 	// ******************* Não apagar *****************
@@ -44,52 +43,51 @@ int main(void){
 }
 
 void* aloca(unsigned int rage){
-	printf("Eu Usei\n");
 	int x = 0;
 	bloco* voz = (bloco*) &memory[x];	
 
 	while(1){
 		//Primeiro verifica se existe o espeço solicitado, caso exista segue o programa, se não retorna um erro e exit (1).
-		if(LOGAR &memory[MEMORY_SIZE] - LOGAR voz > rage + 48){
+		if(LOGAR &memory[MEMORY_SIZE] - LOGAR voz > rage + (2 * sizeof(bloco))){
 				
 			//Verificação se é o primeiro ALOCA solicitado. Retornando assim a posição com o espaço desejado.
 			if (voz->next == NULL && voz->before == NULL && voz->size == -1) {
 				voz->size = rage;
-				return (void*) &memory[x + 24];
+				return (void*) &memory[x + sizeof(bloco)];
 				
 			} else {
 				//Verifica se não existe controle para frente, se não tiver cria-se um controle à frente, e depois retorna o primeiro endereço void do espaço.
 				if(voz->next == NULL){
 					//Criação do controle
-					bloco *newblock = (bloco *) &memory[x + 24 + voz->size];
+					bloco *newblock = (bloco *) &memory[x + sizeof(bloco) + voz->size];
 					newblock->size = rage;
 					newblock->before = voz;
 					newblock->next = NULL;
 					voz->next = newblock;
 					
 					//x recebe o valor da posição da memória em que o primeiro endereço deve estar
-					x += 24 + voz->size + 24;
+					x += voz->size + (2 * sizeof(bloco));
 					return (void*) &memory[x];
 					
 				} else{
-					if (LOGAR voz->next - LOGAR &memory[x + 24] == voz->size){
+					if (LOGAR voz->next - LOGAR &memory[x + sizeof(bloco)] == voz->size){
 						//Aqui é o caso perfeito, onde a memória foi solicitada uma seguida da outra, então o espaço entre elas será igual ao espaço solicitaado
 						x += 24 + voz->size;
 						voz = voz->next;					
 						
 					}else {
 						if(voz->size == -1){
-							if(LOGAR voz->next - LOGAR &memory[x] < rage + 24){
+							if(LOGAR voz->next - LOGAR &memory[x] < rage + sizeof(bloco)){
 								x += LOGAR voz->next - LOGAR &memory[0] ; 
 								voz = voz->next;
 							}else{		
 								voz->size = rage;				
-								x += 24;
+								x += sizeof(bloco);
 								return (void*) &memory[x];	
 							}
 							
 						}else{
-							if(LOGAR voz->next - LOGAR &memory[x + 24] < rage + 24 + voz->size){
+							if(LOGAR voz->next - LOGAR &memory[x + sizeof(bloco)] < rage + 24 + voz->size){
 								//É verificado se existe tamanho suficiente para a memória solicitada
 								//Se não tiver,é passado a "bola" para o próximo bloco de controle e x passa a ter o valor de memory do proximo ponteiro
 								x += LOGAR voz->next - LOGAR &memory[0] ; 
@@ -99,7 +97,7 @@ void* aloca(unsigned int rage){
 							}else {
 								//caso tenha espaço suficiente entre duas memórias, x toma como número o endereço de memory
 								//após o numero de bytes solicitados pelo bloco controle atual
-								x += 24 + voz->size;
+								x += sizeof(bloco) + voz->size;
 								
 								bloco* newblock = (bloco*) &memory[x];
 								newblock->size = rage;
@@ -109,7 +107,7 @@ void* aloca(unsigned int rage){
 								voz->next->before = newblock;
 								voz->next = newblock;
 								
-								x += 24;
+								x += sizeof(bloco);
 								return (void*) &memory[x];						
 							}
 						}
@@ -126,12 +124,11 @@ void* aloca(unsigned int rage){
 }
 
 void dealoca(void* freedom){
-	printf("Eu usei aqui oh\n");
 	int x = 0;
 	while(freedom != &memory[x]) x++;
 	
 	bloco* voz;
-	voz = &memory[x - 24];
+	voz = (bloco*) &memory[x - sizeof(bloco)];
 	
 	voz->before != NULL ? (voz->before->next = voz->next) : (voz->before = NULL);
 	voz->next != NULL ? (voz->next->before = voz->before): (voz->next = NULL);
@@ -186,3 +183,4 @@ void expulsar(bloco* voz, int x){
 	
 	free(voz);
 }
+

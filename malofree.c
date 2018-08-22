@@ -138,6 +138,7 @@ void dealoca(void* freedom){
 	voz->size = -1;
 }
 
+//Lista Duplamente ligada
 bloco* createlist(int x){
 
 	//Create a new list

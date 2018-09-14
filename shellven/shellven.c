@@ -7,6 +7,7 @@
 #define VEN_DELIM_TOK " \t\r\n\a"
 #define VEN_SIZE_TOK 32
 
+//Teste para utilização de cores no terminal
 #define COLOR_BLUE "\033[22;34m"
 #define COLOR_GREEN "\033[22;32m"
 #define COLOR_YELLOW "\033[22;33m"
@@ -26,6 +27,9 @@ char *ven_readline(void);
 char **ven_splitline(char *);
 int ven_laucher(char **);
 int ven_exec(char **);
+
+//os comandos que devem ser chamados
+//é importante a ordem bater com lista de endereços logo depois
 
 char *ven_strbuiltin[] = {
     "mudar",
@@ -50,6 +54,7 @@ int main (){
 
 }
 
+//retorna a quantidade de comandos criados
 int ven_num_builtins(){
     return sizeof(ven_fbuiltin) / sizeof (char *);
 }
@@ -62,7 +67,6 @@ char *ven_readline(void){
 }
 
 char **ven_splitline(char *line){
-
     int linesize = VEN_SIZE_TOK, pos = 0;
     char **comm = malloc (linesize * sizeof(char *));
     char *part;
@@ -98,12 +102,12 @@ int ven_laucher(char **args){
 
     pid = fork();
     if(pid == 0){
-
         if(execvp(args[0], args) == -1) perror("Error");
         exit(EXIT_FAILURE);
-    } else if(pid < 0) perror("Error");
-    else {
 
+    } else if(pid < 0) perror("Error");
+
+    else {
         do{
             wpid = waitpid(pid, &status, WUNTRACED);
         }while (!WIFEXITED(status) && !WIFSIGNALED(status));
@@ -195,12 +199,13 @@ void runshell(void){
             fprintf(stdout, "-");
         printf(">");
         i > 15 ? i = 15 : i++;
+
         line = ven_readline();
         args = ven_splitline(line);
         status = ven_exec(args);
 
         if(status == 71)
-            i = 0;
+            i = 0; //visual para mostrar como andam as execuções dos comandos
 
         free(line);
         free(args);
